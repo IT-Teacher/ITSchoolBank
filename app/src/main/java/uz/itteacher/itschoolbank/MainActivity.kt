@@ -11,6 +11,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import uz.itteacher.itschoolbank.screens.SplashScreen
+import uz.itteacher.itschoolbank.screens.WelcomeScreen
 import uz.itteacher.itschoolbank.ui.theme.ITSchoolBankTheme
 
 class MainActivity : ComponentActivity() {
@@ -18,30 +23,23 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            ITSchoolBankTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+//            ITSchoolBankTheme {
+//                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+//
+//                }
+//            }
+
+            AppNavigation()
         }
     }
 }
 
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    ITSchoolBankTheme {
-        Greeting("Android")
+fun AppNavigation() {
+    val navController = rememberNavController()
+    NavHost(navController = navController, startDestination = "splash") {
+        composable("splash") { SplashScreen(navController) }
+        composable("home") { WelcomeScreen() }
     }
 }
