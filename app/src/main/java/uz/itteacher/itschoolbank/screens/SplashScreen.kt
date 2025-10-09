@@ -2,6 +2,7 @@ package uz.itteacher.itschoolbank.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,10 +12,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.delay
 import androidx.navigation.NavController
+import kotlinx.coroutines.delay
+import uz.itteacher.itschoolbank.R
 
 @Composable
 fun SplashScreen(navController: NavController) {
@@ -39,6 +42,10 @@ fun SplashScreen(navController: NavController) {
             .background(Color(0xFF2196F3)),
         contentAlignment = Alignment.Center
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.splash),
+            contentDescription = null
+        )
         Text(
             text = "IT School Bank",
             color = Color.White,
