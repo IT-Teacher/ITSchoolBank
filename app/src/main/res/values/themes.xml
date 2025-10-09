@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ITSchoolBank.Splash" parent="Theme.SplashScreen">
-        <!-- Splash screen background color -->
-        <item name="windowSplashScreenBackground">#2196F3</item>
-
-        <!-- App icon shown on splash -->
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
-
-        <!-- Theme to use after splash -->
-        <item name="postSplashScreenTheme">@style/Theme.ITSchoolBank</item>
-    </style>
+    <style name="Theme.ITSchoolBank" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>
