@@ -32,9 +32,9 @@ fun RequestMoneyScreen() {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween // pastdagi buttonni pastga chiqarish uchun
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        // Yuqori qism
+
         Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
