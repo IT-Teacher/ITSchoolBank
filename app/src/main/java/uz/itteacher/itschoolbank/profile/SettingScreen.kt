@@ -1,0 +1,155 @@
+package uz.itteacher.itschoolbank.profile
+
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Divider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Switch
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import uz.itteacher.itschoolbank.R
+
+@Composable
+fun SettingsScreen() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+    ) {
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(onClick = { /* Back pressed */ }) {
+                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                }
+            }
+            Text(
+                text = "Settings",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .background(Color.LightGray.copy(alpha = 0.3f), CircleShape),
+                contentAlignment = Alignment.Center
+            ) {
+                IconButton(onClick = { /* More icon pressed */ }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "More")
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        SectionHeader("General")
+        SettingsItem("Language", "English")
+        Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
+        SettingsItem("My Profile")
+        Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
+        SettingsItem("Contact Us")
+
+        Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
+
+        SectionHeader("Security")
+        SettingsItem("Change Password")
+        Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
+        SettingsItem("Privacy Policy")
+
+        Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
+
+        Text(
+            text = "Choose what data you share with us",
+            color = Color.Gray,
+            fontSize = 13.sp,
+            modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+        )
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text("Biometric", fontSize = 16.sp)
+            var checked by remember { mutableStateOf(false) }
+            Switch(checked = checked, onCheckedChange = { checked = it })
+        }
+    }
+}
+
+
+@Composable
+fun SectionHeader(title: String) {
+    Text(
+        text = title,
+        color = Color.Gray,
+        fontSize = 14.sp,
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+    )
+}
+
+@Composable
+fun SettingsItem(title: String, subtitle: String? = null, onClick: () -> Unit = {}) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 14.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(text = title, fontSize = 16.sp)
+        Row {
+            if (subtitle != null) {
+                Text(text = subtitle, color = Color.Gray, fontSize = 14.sp)
+            }
+            Spacer(Modifier.width(10.dp))
+            Icon(painter = painterResource(R.drawable.next), contentDescription = null,
+                tint = Color.Gray, modifier = Modifier.size(20.dp))
+        }
+    }
+}
