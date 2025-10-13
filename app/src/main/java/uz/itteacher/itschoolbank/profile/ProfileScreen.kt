@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import java.io.File
 import java.io.FileOutputStream
-import uz.itteacher.itschoolbank.R
+
 
 fun saveImageToInternalStorage(context: Context, bitmap: Bitmap, filename: String): String {
     val file = File(context.filesDir, filename)
