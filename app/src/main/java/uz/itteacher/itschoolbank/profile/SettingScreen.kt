@@ -37,10 +37,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import uz.itteacher.itschoolbank.R
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -61,7 +62,8 @@ fun SettingsScreen() {
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(onClick = { /* Back pressed */ }) {
-                    Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    Icon(painterResource(R.drawable.back), contentDescription = "Back",
+                        Modifier.size(20.dp))
                 }
             }
             Text(
@@ -87,16 +89,22 @@ fun SettingsScreen() {
         SectionHeader("General")
         SettingsItem("Language", "English")
         Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
-        SettingsItem("My Profile")
+        SettingsItem("My Profile"){
+            navController.navigate("profile")
+        }
         Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
         SettingsItem("Contact Us")
 
         Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
 
         SectionHeader("Security")
-        SettingsItem("Change Password")
+        SettingsItem("Change Password"){
+            navController.navigate("change")
+        }
         Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
-        SettingsItem("Privacy Policy")
+        SettingsItem("Privacy Policy"){
+            navController.navigate("term")
+        }
 
         Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -23,11 +24,14 @@ import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import java.io.File
 import java.io.FileOutputStream
+import uz.itteacher.itschoolbank.R
 
 
 fun saveImageToInternalStorage(context: Context, bitmap: Bitmap, filename: String): String {
@@ -47,15 +51,14 @@ fun saveImageToInternalStorage(context: Context, bitmap: Bitmap, filename: Strin
 //    return MediaStore.Images.Media.getBitmap(context.contentResolver, uri)
 //}
 
-@Preview(showBackground = true)
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavController) {
     val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(30.dp)
+            .padding(horizontal = 16.dp, vertical = 15.dp)
     ) {
         Row(
             Modifier.fillMaxWidth(),
@@ -68,14 +71,17 @@ fun ProfileScreen() {
                     .background(Color.LightGray.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    painter = painterResource(R.drawable.back),
-                    contentDescription = "back",
-                    Modifier.size(20.dp)
-                )
+                IconButton(onClick = {navController.popBackStack()}) {
+                    Icon(
+                        painter = painterResource(R.drawable.back),
+                        contentDescription = "back",
+                        Modifier.size(20.dp)
+                    )
+                }
             }
 
-            Text("Profile", fontSize = 24.sp)
+            Text("Profile", fontSize = 20.sp,
+                fontWeight = FontWeight.Bold)
 
             Box(
                 modifier = Modifier
@@ -86,7 +92,7 @@ fun ProfileScreen() {
                 Icon(
                     painter = painterResource(R.drawable.edit),
                     contentDescription = "edit profile",
-                    Modifier.size(25.dp)
+                    Modifier.size(25.dp).clickable{navController.navigate("edit")}
                 )
             }
         }
@@ -139,7 +145,7 @@ fun ProfileHeaderSection(context: Context) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(20.dp, 0.dp),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.Center
     ) {
         Image(
             painter = if (profileBitmap != null) BitmapPainter(profileBitmap!!.asImageBitmap())
@@ -151,6 +157,7 @@ fun ProfileHeaderSection(context: Context) {
                 .clickable { showDialog = true },
             contentScale = ContentScale.Crop
         )
+        Spacer(Modifier.width(20.dp))
 
         Column {
             Spacer(modifier = Modifier.height(10.dp))
@@ -187,14 +194,16 @@ fun ProfileMenuItem(
     iconRes: Int,
     text: String,
     showBadge: Boolean = false,
-    badgeCount: Int = 0
+    badgeCount: Int = 0,
+    onClick: () -> Unit = {}
 ) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.clickable{onClick()}){
             Icon(
                 painterResource(iconRes),
                 contentDescription = "profile",

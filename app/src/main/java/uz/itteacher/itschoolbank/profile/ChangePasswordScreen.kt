@@ -3,6 +3,7 @@ package uz.itteacher.itschoolbank.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,10 +39,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import uz.itteacher.itschoolbank.R
 
 @Composable
-fun ChangePasswordScreen(onBackClick: () -> Unit = {}) {
+fun ChangePasswordScreen(navController: NavController) {
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
@@ -63,13 +65,12 @@ fun ChangePasswordScreen(onBackClick: () -> Unit = {}) {
                     .background(Color.LightGray.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                IconButton(onClick = onBackClick) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        painter= painterResource(R.drawable.back),
                         contentDescription = "Back",
-                        tint = Color.Black
+                        tint = Color.Black,
+                        modifier = Modifier.size(20.dp).clickable{navController.popBackStack()}
                     )
-                }
             }
             Text(
                 text = "Change Password",
