@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "826574223905",
+    "firebase_url": "https://myfirststep-2009sh-default-rtdb.firebaseio.com",
+    "project_id": "myfirststep-2009sh",
+    "storage_bucket": "myfirststep-2009sh.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826574223905:android:63ff9bd01dba131a518160",
+        "android_client_info": {
+          "package_name": "com.example.signup"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "826574223905-jcpb8qrof91evgu82ib2e2cn7q09lb93.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQErYqfkLX1vPd0mJmEXQTFI5to6dAhI4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "826574223905-jcpb8qrof91evgu82ib2e2cn7q09lb93.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:826574223905:android:36789ecf33f73389518160",
+        "android_client_info": {
+          "package_name": "uz.itteacher.itschoolbank"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "826574223905-jcpb8qrof91evgu82ib2e2cn7q09lb93.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQErYqfkLX1vPd0mJmEXQTFI5to6dAhI4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "826574223905-jcpb8qrof91evgu82ib2e2cn7q09lb93.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
