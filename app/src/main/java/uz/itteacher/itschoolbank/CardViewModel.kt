@@ -25,7 +25,7 @@ class CardViewModel : ViewModel() {
         val index = cards.indexOfFirst { it.cardNumber == updatedCard.cardNumber }
         if (index != -1) {
             cards[index] = updatedCard
-            repository.addCard(updatedCard) // Overwrite in repository
+            repository.addCard(updatedCard)
         }
     }
 
@@ -34,7 +34,9 @@ class CardViewModel : ViewModel() {
         if (index != -1 && index != cards.lastIndex) {
             cards.removeAt(index)
             cards.add(card)
-            repository.updateCards(cards) // Update repository with new order
+            println("ViewModel moved card to main: ${card.cardNumber}") // Debug print
+            repository.updateCards(cards.toList()) // Update repository
+            loadCards() // Reload to sync with repository
         }
     }
 }

@@ -32,16 +32,18 @@ class MainActivity : ComponentActivity() {
                     composable("addNewCard") {
                         AddNewCardsScreen(
                             viewModel = viewModel,
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
+                            navBackStackEntry = it // Pass the current back stack entry
                         )
                     }
                     composable("allCards") {
                         AllCardsScreen(
                             viewModel = viewModel,
+                            navController = navController,
                             onBack = { navController.popBackStack() },
-                            onEditCard = { card ->
+                            onEditCard = { card: BankCard ->
                                 navController.currentBackStackEntry?.savedStateHandle?.set("cardToEdit", card)
-                                navController.navigate("addNewCard") // Reuse AddNewCardsScreen for editing
+                                navController.navigate("addNewCard")
                             }
                         )
                     }
@@ -50,3 +52,4 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+

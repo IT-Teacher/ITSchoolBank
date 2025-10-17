@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun MyCardsScreen(viewModel: CardViewModel, onAddCard: () -> Unit, onCardClick: () -> Unit) {
+    viewModel.loadCards() // Reload cards on each render to ensure latest order
     val cards = viewModel.cards
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
@@ -45,17 +46,16 @@ fun MyCardsScreen(viewModel: CardViewModel, onAddCard: () -> Unit, onCardClick: 
         if (cards.isEmpty()) {
             Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_empty), // Custom empty icon
+                    painter = painterResource(id = R.drawable.ic_empty),
                     contentDescription = "No cards",
-                    modifier = Modifier.size(600.dp) // Increased size to 150 dp
+                    modifier = Modifier.size(150.dp)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = "No cards added yet",
-                    modifier = Modifier.padding(top = 250.dp), // Space between image and text
-                    fontSize = 30.sp, // Larger font size
-                    fontWeight = FontWeight.Bold, // Bold styling
-                    color = Color.Gray // Stylish color
+                    modifier = Modifier.padding(top = 16.dp),
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Gray
                 )
             }
         } else {

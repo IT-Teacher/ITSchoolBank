@@ -13,14 +13,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavBackStackEntry
 
 @Composable
-fun AddNewCardsScreen(viewModel: CardViewModel, onBack: () -> Unit) {
-    var cardholderName by remember { mutableStateOf("") }
-    var expiryDate by remember { mutableStateOf("") }
-    var cvv by remember { mutableStateOf("") }
-    var cardNumber by remember { mutableStateOf("") }
-    var cardType by remember { mutableStateOf("Mastercard") }
+fun AddNewCardsScreen(viewModel: CardViewModel, onBack: () -> Unit, navBackStackEntry: NavBackStackEntry? = null) {
+    val cardToEdit = navBackStackEntry?.savedStateHandle?.get<BankCard>("cardToEdit")
+    var cardholderName by remember { mutableStateOf(cardToEdit?.cardholderName ?: "") }
+    var expiryDate by remember { mutableStateOf(cardToEdit?.expiryDate ?: "") }
+    var cvv by remember { mutableStateOf(cardToEdit?.cvv ?: "") }
+    var cardNumber by remember { mutableStateOf(cardToEdit?.cardNumber ?: "") }
+    var cardType by remember { mutableStateOf(cardToEdit?.cardType ?: "Mastercard") }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var expanded by remember { mutableStateOf(false) }
 
@@ -36,7 +38,7 @@ fun AddNewCardsScreen(viewModel: CardViewModel, onBack: () -> Unit) {
                 contentDescription = "Back"
             )
         }
-        Text("Add New Card", style = MaterialTheme.typography.headlineMedium)
+        Text(if (cardToEdit != null) "Edit Card" else "Add New Card", style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(20.dp))
 
         Box(
@@ -223,27 +225,41 @@ fun AddNewCardsScreen(viewModel: CardViewModel, onBack: () -> Unit) {
                     return@Button
                 }
 
-                val newCard = BankCard(
-                    cardNumber = cardNumber,
-                    cardholderName = cardholderName,
-                    expiryDate = expiryDate,
-                    cvv = cvv,
-                    cardType = cardType,
-                    transactions = listOf(
-                        Transaction("Apple Store", 5.99f, "Entertainment"),
-                        Transaction("Spotify", 12.99f, "Music"),
-                        Transaction("Grocery", 88f, "Shopping")
-                    ),
-                    spentAmount = 106.98f
-                )
-                viewModel.addCard(newCard)
+                val updatedCard = if (cardToEdit != null) {
+                    cardToEdit.copy(
+                        cardNumber = cardNumber,
+                        cardholderName = cardholderName,
+                        expiryDate = expiryDate,
+                        cvv = cvv,
+                        cardType = cardType
+                    )
+                } else {
+                    BankCard(
+                        cardNumber = cardNumber,
+                        cardholderName = cardholderName,
+                        expiryDate = expiryDate,
+                        cvv = cvv,
+                        cardType = cardType,
+                        transactions = listOf(
+                            Transaction("Apple Store", 5.99f, "Entertainment"),
+                            Transaction("Spotify", 12.99f, "Music"),
+                            Transaction("Grocery", 88f, "Shopping")
+                        ),
+                        spentAmount = 106.98f
+                    )
+                }
+                if (cardToEdit != null) {
+                    viewModel.updateCard(updatedCard)
+                } else {
+                    viewModel.addCard(updatedCard)
+                }
                 errorMessage = null
                 onBack()
             },
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Add Card")
+            Text(if (cardToEdit != null) "Save Changes" else "Add Card")
         }
     }
 }
