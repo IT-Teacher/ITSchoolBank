@@ -25,17 +25,17 @@ fun EnterPinScreen(
     var enteredPin by remember { mutableStateOf("") }
     val remainingChances = 3 - state.failedAttempts
 
-    // If blocked, switch to block screen
+
     if (state.blockEndTime != null && viewModel.remainingBlockSeconds() > 0) {
         onBlocked()
     }
 
-    // If access granted
+
     if (state.accessGranted) {
         onAccessGranted()
     }
 
-    // 🔴 Animated color for chance text
+
     val targetColor = if (state.failedAttempts > 0) Color.Red else Color.Gray
     val animatedColor by animateColorAsState(
         targetValue = targetColor,
@@ -64,7 +64,7 @@ fun EnterPinScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // PIN dots
+
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -83,7 +83,7 @@ fun EnterPinScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // 🔄 Animated color text
+
         Text(
             text = "You have $remainingChances chances left",
             color = animatedColor,
@@ -93,7 +93,7 @@ fun EnterPinScreen(
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        // Keypad buttons
+
         val digits = listOf(
             listOf("1", "2", "3"),
             listOf("4", "5", "6"),
