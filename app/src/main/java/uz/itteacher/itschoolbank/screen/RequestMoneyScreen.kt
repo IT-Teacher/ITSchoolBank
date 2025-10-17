@@ -192,7 +192,6 @@ fun RequestMoneyScreen() {
             }
         }
 
-
         Box(
             modifier = Modifier
                 .fillMaxWidth()
