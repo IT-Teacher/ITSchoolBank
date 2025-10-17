@@ -1,26 +1,42 @@
 package uz.itteacher.itschoolbank.viewmodel
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import uz.itteacher.itschoolbank.data.PinRepository
 
 data class PinState(
     val savedPin: String? = null,
     val failedAttempts: Int = 0,
     val blockEndTime: Long? = null,
-    val blockStage: Int = 0, // 0 = none, 1 = 1min done, 2 = 5min done
+    val blockStage: Int = 0,
     val accessGranted: Boolean = false
 )
 
-class PinViewModel : ViewModel() {
+class PinViewModel(private val repo: PinRepository) : ViewModel() {
 
-    // ✅ Make it reactive so UI recomposes when this changes
-    var state by mutableStateOf(PinState())
+    var state by androidx.compose.runtime.mutableStateOf(PinState())
         private set
 
+    init {
+        loadSavedPin()
+    }
+
+    private fun loadSavedPin() {
+        viewModelScope.launch {
+            val pin = repo.getSavedPin.first()
+            state = state.copy(savedPin = pin)
+        }
+    }
+
     fun createPin(pin: String) {
-        state = state.copy(savedPin = pin)
+        viewModelScope.launch {
+            repo.savePin(pin)
+            state = state.copy(savedPin = pin)
+        }
     }
 
     fun resetAccess() {
@@ -29,12 +45,9 @@ class PinViewModel : ViewModel() {
 
     fun tryPin(entered: String) {
         val now = System.currentTimeMillis()
-
-        // If currently blocked, ignore attempts
         if (state.blockEndTime != null && now < state.blockEndTime!!) return
 
         if (entered == state.savedPin) {
-            // ✅ Correct PIN — reset everything
             state = state.copy(
                 failedAttempts = 0,
                 blockEndTime = null,
@@ -42,18 +55,15 @@ class PinViewModel : ViewModel() {
                 accessGranted = true
             )
         } else {
-            // ❌ Wrong PIN
             val newFails = state.failedAttempts + 1
             if (newFails >= 3) {
-                // Block logic
-                val blockDuration = if (state.blockStage == 0) 60_000L else 300_000L // 1 or 5 mins
+                val blockDuration = if (state.blockStage == 0) 60_000L else 300_000L
                 state = state.copy(
                     failedAttempts = 0,
                     blockEndTime = now + blockDuration,
                     blockStage = state.blockStage + 1
                 )
             } else {
-                // Just increment failed attempts
                 state = state.copy(failedAttempts = newFails)
             }
         }
