@@ -48,12 +48,12 @@ fun MyCardsScreen(viewModel: CardViewModel, onAddCard: () -> Unit, onCardClick: 
                 Image(
                     painter = painterResource(id = R.drawable.ic_empty),
                     contentDescription = "No cards",
-                    modifier = Modifier.size(150.dp)
+                    modifier = Modifier.size(650.dp)
                 )
                 Text(
                     text = "No cards added yet",
-                    modifier = Modifier.padding(top = 16.dp),
-                    fontSize = 18.sp,
+                    modifier = Modifier.padding(top = 250.dp),
+                    fontSize = 30.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.Gray
                 )
