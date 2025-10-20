@@ -18,6 +18,8 @@ object Routes {
     const val SEARCH = "search"
     const val REQUEST = "request"
     const val PROFILE = "profile"
+
+    const val SEND_MONEY = "send_money"
 }
 
 @Composable
@@ -45,7 +47,8 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             composable(Routes.HOME) {
                 HomeScreen(
                     onSeeAll = { navController.navigate(Routes.SEARCH) },
-                    onShowStats = { /* handled inside HomeScreen via dialog state */ }
+                    onShowStats = { /* handled inside HomeScreen via dialog state */ },
+                    onSendMoney = { navController.navigate(Routes.SEND_MONEY) }
                 )
             }
             composable(Routes.TRANSACTIONS) {
@@ -59,6 +62,9 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             }
             composable(Routes.PROFILE) {
                 ProfileScreen()
+            }
+            composable(Routes.SEND_MONEY) {
+                SendMoneyScreen()
             }
         }
     }

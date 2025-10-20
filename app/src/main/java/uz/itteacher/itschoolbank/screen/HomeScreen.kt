@@ -22,7 +22,8 @@ import uz.itteacher.itschoolbank.viewmodel.ChartCategory
 fun HomeScreen(
     viewModel: TransactionViewModel = viewModel(),
     onSeeAll: () -> Unit = {},
-    onShowStats: () -> Unit = {}
+    onShowStats: () -> Unit = {},
+    onSendMoney: () -> Unit = {}
 ) {
     val transactions by remember { derivedStateOf { viewModel.transactions } }
     val categories by remember { derivedStateOf { viewModel.categories } }
@@ -94,7 +95,7 @@ fun HomeScreen(
                 Button(onClick = { showDialog = true }) {
                     Text("Statistics")
                 }
-                Button(onClick = { /* placeholder for send money */ }) {
+                Button(onClick = { onSendMoney() }) {
                     Text("Send Money")
                 }
             }
