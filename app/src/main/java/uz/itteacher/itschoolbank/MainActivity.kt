@@ -65,7 +65,7 @@ fun PinFlow(viewModel: PinViewModel) {
 
         "enter" -> EnterPinScreen(
             viewModel = viewModel,
-            onAccessGranted = { currentScreen = "success" },
+            onAccessGranted = { currentScreen = "comPay" },
             onBlocked = { currentScreen = "blocked" }
         )
 
@@ -75,6 +75,10 @@ fun PinFlow(viewModel: PinViewModel) {
         )
 
         "success" -> SuccessScreen()
+
+        "comPay" -> CommunalPaymentApp(
+
+        )
     }
 }
 
