@@ -52,6 +52,6 @@ fun EducationApp() {
     NavHost(navController = navController, startDestination = startDestination) {
         composable("login") { LoginScreen(navController) }
         composable("signup") { SignUpScreen(navController) }
-        composable("verification") { OtpVerificationScreen() }
+        composable("end") { all() }
     }
 }

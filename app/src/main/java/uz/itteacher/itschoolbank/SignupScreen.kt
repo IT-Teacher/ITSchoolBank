@@ -1,6 +1,5 @@
 package uz.itteacher.itschoolbank
 
-import android.net.Uri
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,7 +37,6 @@ fun SignUpScreen(navController: NavHostController) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
     var message by remember { mutableStateOf("") }
     var loading by remember { mutableStateOf(false) }
 
@@ -96,22 +94,12 @@ fun SignUpScreen(navController: NavHostController) {
 
             Spacer(Modifier.height(24.dp))
 
-            OutlinedTextField(
-                value = phoneNumber,
-                onValueChange = { phoneNumber = it },
-                label = { Text("Enter phone number") },
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(Modifier.height(24.dp))
-
             Button(
                 onClick = {
-                    if (name.isNotEmpty() && email.isNotEmpty() && phoneNumber.isNotEmpty() && password == confirmPassword) {
+                    if (name.isNotEmpty() && email.isNotEmpty() && password == confirmPassword) {
                         loading = true
                         val userId = database.push().key!!
-                        val user = User(name, email, password,phoneNumber)
+                        val user = User(name, email, password)
 
                         database.child(userId).setValue(user)
                             .addOnSuccessListener {
@@ -119,10 +107,7 @@ fun SignUpScreen(navController: NavHostController) {
                                 message = "✅ Account created!"
 
                                 SessionManager.saveUser(context, name, email)
-
-//                                val encodedName = Uri.encode(name)
-//                                val encodedEmail = Uri.encode(email)
-                                navController.navigate("verification") {
+                                navController.navigate("end") {
                                     popUpTo("signup") { inclusive = true }
                                 }
                             }

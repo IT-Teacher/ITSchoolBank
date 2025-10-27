@@ -125,9 +125,7 @@ fun LoginScreen(navController: NavHostController) {
                         loading = false
                         if (foundUser != null) {
                             SessionManager.saveUser(context, foundUser.name, foundUser.email)
-                            val encodedName = Uri.encode(foundUser.name)
-                            val encodedEmail = Uri.encode(foundUser.email)
-                            navController.navigate("dashboard/$encodedName/$encodedEmail") {
+                            navController.navigate("end") {
                                 popUpTo("login") { inclusive = true }
                             }
                         } else {
