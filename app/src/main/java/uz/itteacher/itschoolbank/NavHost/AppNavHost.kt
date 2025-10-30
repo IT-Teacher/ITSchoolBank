@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import uz.itteacher.itschoolbank.profile.ChangePasswordScreen
 import uz.itteacher.itschoolbank.profile.EditProfileScreen
+import uz.itteacher.itschoolbank.profile.LanguageScreen
 import uz.itteacher.itschoolbank.profile.ProfileScreen
 import uz.itteacher.itschoolbank.profile.SettingsScreen
 import uz.itteacher.itschoolbank.profile.TermsAndConditionScreen
@@ -28,6 +29,9 @@ fun AppNavHost(){
         }
         composable("change") {
             ChangePasswordScreen(navController)
+        }
+        composable("language"){
+            LanguageScreen(navController)
         }
 
     }

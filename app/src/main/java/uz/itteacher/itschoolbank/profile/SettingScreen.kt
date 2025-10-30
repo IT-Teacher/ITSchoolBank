@@ -1,35 +1,17 @@
 package uz.itteacher.itschoolbank.profile
 
-
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -42,11 +24,19 @@ import uz.itteacher.itschoolbank.R
 
 @Composable
 fun SettingsScreen(navController: NavController) {
+    val selectedLanguage = remember { mutableStateOf("English") }
+
+    navController.currentBackStackEntry
+        ?.savedStateHandle
+        ?.getLiveData<String>("selectedLanguage")
+        ?.observeForever { language ->
+            selectedLanguage.value = language
+        }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White)
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         Spacer(modifier = Modifier.height(12.dp))
@@ -61,9 +51,12 @@ fun SettingsScreen(navController: NavController) {
                     .background(Color.LightGray.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                IconButton(onClick = { /* Back pressed */ }) {
-                    Icon(painterResource(R.drawable.back), contentDescription = "Back",
-                        Modifier.size(20.dp))
+                IconButton(onClick = { /* Add back navigation if needed */ }) {
+                    Icon(
+                        painter = painterResource(R.drawable.back),
+                        contentDescription = "Back",
+                        modifier = Modifier.size(20.dp)
+                    )
                 }
             }
             Text(
@@ -71,38 +64,44 @@ fun SettingsScreen(navController: NavController) {
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold
             )
-
             Box(
                 modifier = Modifier
                     .size(40.dp)
                     .background(Color.LightGray.copy(alpha = 0.3f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                IconButton(onClick = { /* More icon pressed */ }) {
-                    Icon(Icons.Default.MoreVert, contentDescription = "More")
+                IconButton(onClick = { }) {
+                    Icon(
+                        imageVector = Icons.Default.MoreVert,
+                        contentDescription = "More",
+                        tint = Color.Black
+                    )
                 }
             }
         }
 
         Spacer(modifier = Modifier.height(16.dp))
-
         SectionHeader("General")
-        SettingsItem("Language", "English")
+        SettingsItem("Language", selectedLanguage.value) {
+            navController.navigate("language")
+        }
+
         Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
-        SettingsItem("My Profile"){
+        SettingsItem("My Profile") {
             navController.navigate("profile")
         }
+
         Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
         SettingsItem("Contact Us")
 
         Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
-
         SectionHeader("Security")
-        SettingsItem("Change Password"){
+        SettingsItem("Change Password") {
             navController.navigate("change")
         }
+
         Divider(modifier = Modifier.padding(vertical = 8.dp), color = Color.Gray)
-        SettingsItem("Privacy Policy"){
+        SettingsItem("Privacy Policy") {
             navController.navigate("term")
         }
 
@@ -128,7 +127,6 @@ fun SettingsScreen(navController: NavController) {
         }
     }
 }
-
 
 @Composable
 fun SectionHeader(title: String) {
@@ -156,8 +154,12 @@ fun SettingsItem(title: String, subtitle: String? = null, onClick: () -> Unit = 
                 Text(text = subtitle, color = Color.Gray, fontSize = 14.sp)
             }
             Spacer(Modifier.width(10.dp))
-            Icon(painter = painterResource(R.drawable.next), contentDescription = null,
-                tint = Color.Gray, modifier = Modifier.size(20.dp))
+            Icon(
+                painter = painterResource(R.drawable.next),
+                contentDescription = null,
+                tint = Color.Gray,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }
