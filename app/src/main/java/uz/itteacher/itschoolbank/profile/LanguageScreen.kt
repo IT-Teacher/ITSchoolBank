@@ -36,8 +36,8 @@ fun LanguageScreen(navController: NavController) {
         Language("French", R.drawable.flag_france),
         Language("Spanish", R.drawable.flag_spain),
         Language("Vietnamese", R.drawable.flag_vietnam),
-        Language("German", R.drawable.flag_columbia),
-        Language("German", R.drawable.flag_australia)
+        Language("Columbian", R.drawable.flag_columbia),
+        Language("Australian", R.drawable.flag_australia)
     )
 
     val filteredLanguages = languages.filter {

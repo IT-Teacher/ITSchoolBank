@@ -29,6 +29,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.tasks.await
 import java.io.File
 import java.io.FileOutputStream
 import uz.itteacher.itschoolbank.R
@@ -54,6 +56,17 @@ fun saveImageToInternalStorage(context: Context, bitmap: Bitmap, filename: Strin
 @Composable
 fun ProfileScreen(navController: NavController) {
     val context = LocalContext.current
+    var userName by remember { mutableStateOf("Unknown User") }
+    LaunchedEffect(Unit) {
+        val database = FirebaseDatabase.getInstance().getReference("users")
+        val snapshot = database.get().await()
+        if (snapshot.exists()) {
+            val firstUser = snapshot.children.firstOrNull()
+            if (firstUser != null) {
+                userName = firstUser.child("name").value?.toString() ?: "Unknown User"
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -99,7 +112,7 @@ fun ProfileScreen(navController: NavController) {
 
         Spacer(Modifier.height(30.dp))
 
-        ProfileHeaderSection(context)
+        ProfileHeaderSection(context, userName)
 
         Spacer(Modifier.height(20.dp))
 
@@ -114,7 +127,7 @@ fun ProfileScreen(navController: NavController) {
 }
 
 @Composable
-fun ProfileHeaderSection(context: Context) {
+fun ProfileHeaderSection(context: Context, userName: String) {
     var profileBitmap by remember { mutableStateOf<Bitmap?>(null) }
     var showDialog by remember { mutableStateOf(false) }
 
@@ -161,7 +174,7 @@ fun ProfileHeaderSection(context: Context) {
 
         Column {
             Spacer(modifier = Modifier.height(10.dp))
-            Text(text = "Tanya Myroniuk", fontSize = 20.sp)
+            Text(text = userName, fontSize = 20.sp)
             Text(text = "Senior Designer", color = Color.Gray, fontSize = 14.sp)
             Spacer(modifier = Modifier.height(30.dp))
         }

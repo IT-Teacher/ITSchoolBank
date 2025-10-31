@@ -1,161 +1,126 @@
 package uz.itteacher.itschoolbank.profile
 
-
-import androidx.compose.foundation.Image
+import androidx.compose.ui.platform.LocalContext
+import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import uz.itteacher.itschoolbank.R
+import com.google.firebase.database.FirebaseDatabase
 
 @Composable
 fun ChangePasswordScreen(navController: NavController) {
     var currentPassword by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    var showNewPassword by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .background(Color(0xFFF5F5F5))
+            .padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
     ) {
-        Row (
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(top = 8.dp, bottom = 24.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .background(Color.LightGray.copy(alpha = 0.3f), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                    Icon(
-                        painter= painterResource(R.drawable.back),
-                        contentDescription = "Back",
-                        tint = Color.Black,
-                        modifier = Modifier.size(20.dp).clickable{navController.popBackStack()}
-                    )
-            }
-            Text(
-                text = "Change Password",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(start = 4.dp)
-            )
-        }
-        Text("Current Password", color = Color.Gray, fontSize = 14.sp)
+        Text("Change Password", style = MaterialTheme.typography.headlineSmall)
+
+        Spacer(modifier = Modifier.height(20.dp))
+
         OutlinedTextField(
             value = currentPassword,
             onValueChange = { currentPassword = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 6.dp, bottom = 12.dp),
-            placeholder = { },
-            leadingIcon = {
-                Icon(Icons.Default.Lock, contentDescription = null)
-            },
-            singleLine = true,
+            label = { Text("Current Password") },
             visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
         )
-        Text("New Password", color = Color.Gray, fontSize = 14.sp)
+
+        Spacer(modifier = Modifier.height(10.dp))
+
         OutlinedTextField(
             value = newPassword,
             onValueChange = { newPassword = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 6.dp, bottom = 12.dp),
-            placeholder = { },
-            leadingIcon = {
-                Icon(Icons.Default.Lock, contentDescription = null)
-            },
-            trailingIcon = {
-                IconButton(onClick = { showNewPassword = !showNewPassword }) {
-                    Image(
-                        painter = if (showNewPassword)
-                            painterResource(R.drawable.visibility) else painterResource(R.drawable.eyebrow),
-                        contentDescription = null,
-                        Modifier.size(20.dp)
-                    )
-                }
-            },
-            singleLine = true,
-            visualTransformation = if (showNewPassword)
-                VisualTransformation.None else PasswordVisualTransformation(),
+            label = { Text("New Password") },
+            visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
+        )
 
-            )
+        Spacer(modifier = Modifier.height(10.dp))
 
-        Text("Confirm New Password", color = Color.Gray, fontSize = 14.sp)
         OutlinedTextField(
             value = confirmPassword,
             onValueChange = { confirmPassword = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 6.dp, bottom = 4.dp),
-            placeholder = {},
-            leadingIcon = {
-                Icon(Icons.Default.Lock, contentDescription = null)
-            },
-            singleLine = true,
+            label = { Text("Confirm New Password") },
             visualTransformation = PasswordVisualTransformation(),
+            modifier = Modifier.fillMaxWidth()
         )
 
-        Text(
-            text = "Both Passwords Must Match",
-            color = Color.Gray,
-            fontSize = 13.sp,
-            modifier = Modifier.padding(start = 8.dp, bottom = 24.dp)
-        )
+        Spacer(modifier = Modifier.height(20.dp))
 
         Button(
-            onClick = { },
+            onClick = {
+                val databaseRef = FirebaseDatabase.getInstance().getReference("users")
+                databaseRef.get().addOnSuccessListener { snapshot ->
+                    val firstUser = snapshot.children.firstOrNull()
+                    if (firstUser == null) {
+                        Toast.makeText(context, "User not found", Toast.LENGTH_SHORT).show()
+                        return@addOnSuccessListener
+                    }
+
+                    val savedPassword = firstUser.child("password").value?.toString()
+
+                    when {
+                        savedPassword == null -> {
+                            Toast.makeText(context, "User not found", Toast.LENGTH_SHORT).show()
+                        }
+                        savedPassword != currentPassword -> {
+                            Toast.makeText(context, "Incorrect current password", Toast.LENGTH_SHORT).show()
+                        }
+                        newPassword != confirmPassword -> {
+                            Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
+                        }
+                        newPassword.length < 6 -> {
+                            Toast.makeText(context, "Password too short", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {
+                            firstUser.ref.child("password").setValue(newPassword)
+                                .addOnSuccessListener {
+                                    Toast.makeText(
+                                        context,
+                                        "Password changed successfully",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                    navController.popBackStack()
+                                }
+                                .addOnFailureListener {
+                                    Toast.makeText(
+                                        context,
+                                        "Failed to update password",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                        }
+                    }
+                }.addOnFailureListener {
+                    Toast.makeText(context, "Error loading data", Toast.LENGTH_SHORT).show()
+                }
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .height(52.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF0066FF)),
+                .height(50.dp),
             shape = RoundedCornerShape(12.dp)
         ) {
-            Text(
-                text = "Change Password",
-                color = Color.White,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
-            )
+            Text("Change Password")
         }
     }
 }
+
+
