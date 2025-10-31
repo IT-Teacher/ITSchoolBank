@@ -15,7 +15,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import uz.itteacher.itschoolbank.screens.SplashScreen
-import uz.itteacher.itschoolbank.screens.WelcomeScreen
 import uz.itteacher.itschoolbank.ui.theme.ITSchoolBankTheme
 
 class MainActivity : ComponentActivity() {
@@ -40,6 +39,6 @@ fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = "splash") {
         composable("splash") { SplashScreen(navController) }
-        composable("home") { WelcomeScreen() }
+
     }
 }
