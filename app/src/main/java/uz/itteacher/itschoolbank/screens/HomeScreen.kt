@@ -175,7 +175,7 @@ fun CardItem(card: BankCard) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.spacedBy(50.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.sim_card),
