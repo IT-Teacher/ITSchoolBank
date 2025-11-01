@@ -5,212 +5,87 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import uz.itteacher.itschoolbank.R
+import uz.itteacher.itschoolbank.viewmodel.MainTransactionViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import android.widget.Toast
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.platform.LocalContext
 
 @Composable
-fun RequestMoneyScreen() {
-    var payerName by remember { mutableStateOf("Tanya Myroniuk") }
-    var email by remember { mutableStateOf("tanya.myroniuk@gmail.com") }
-    var description by remember { mutableStateOf("Some description") }
-    var amount by remember { mutableStateOf("26.00.00") }
+fun RequestMoneyScreen(viewModel: MainTransactionViewModel = viewModel()) {
+    var toUser by remember { mutableStateOf<String?>(null) }
+    var amount by remember { mutableStateOf("") }
+    var note by remember { mutableStateOf("") }
+    val ctx = LocalContext.current
+    val users by viewModel.allUsers.collectAsState()
 
-    var dueDay by remember { mutableStateOf("28") }
-    var dueMonth by remember { mutableStateOf("09") }
-    var dueYear by remember { mutableStateOf("2000") }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.SpaceBetween
-    ) {
-
+    Column(modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.SpaceBetween) {
         Column {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Image(
-                    painter = painterResource(R.drawable.back),
-                    contentDescription = "back",
-                    modifier = Modifier.size(40.dp)
-                )
+            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Image(painter = painterResource(R.drawable.back), contentDescription = "back", modifier = Modifier.size(40.dp))
                 Spacer(modifier = Modifier.width(70.dp))
-                Text(
-                    text = "Request Money",
-                    fontWeight = FontWeight.SemiBold,
-                    fontSize = 22.sp
-                )
+                Text(text = "Request Money")
             }
-            Spacer(Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Column(modifier = Modifier.padding(8.dp)) {
-                Text(
-                    text = "Payer Name",
-                    color = Color.Gray,
-                    fontSize = 16.sp
-                )
-                Spacer(Modifier.height(10.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(R.drawable.profile_gray),
-                        contentDescription = "user",
-                        modifier = Modifier.size(28.dp)
-                    )
-                    Spacer(Modifier.width(10.dp))
-                    BasicTextField(
-                        value = payerName,
-                        onValueChange = { payerName = it },
-                        singleLine = true,
-                        textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+            Text(text = "Choose user to request from", color = Color.Gray)
+            Spacer(modifier = Modifier.height(8.dp))
+            users.filter { it.id != (viewModel.currentUser.value?.id ?: "") }.take(6).forEach { u ->
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp)
+                    .background(if (toUser == u.id) Color(0xFFE3F2FD) else Color.Transparent, shape = RoundedCornerShape(8.dp))
+                    .padding(8.dp)
+                    .clickable { toUser = u.id },
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Image(painter = painterResource(R.drawable.profile_gray), contentDescription = null, modifier = Modifier.size(44.dp))
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(u.name)
+                        Text(u.email, color = Color.Gray)
+                    }
                 }
+            }
 
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    text = "Email Address",
-                    color = Color.Gray,
-                    fontSize = 16.sp
-                )
-                Spacer(Modifier.height(10.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(R.drawable.email),
-                        contentDescription = "email",
-                        modifier = Modifier.size(28.dp)
-                    )
-                    Spacer(Modifier.width(10.dp))
-                    BasicTextField(
-                        value = email,
-                        onValueChange = { email = it },
-                        singleLine = true,
-                        textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Amount", color = Color.Gray)
+            OutlinedTextField(value = amount, onValueChange = { amount = it }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(12.dp))
+            Text("Note", color = Color.Gray)
+            OutlinedTextField(value = note, onValueChange = { note = it }, modifier = Modifier.fillMaxWidth())
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {
+                val to = toUser
+                val amt = amount.toDoubleOrNull() ?: 0.0
+                if (to.isNullOrBlank()) { Toast.makeText(ctx, "Choose a user", Toast.LENGTH_SHORT).show(); return@Button }
+                if (amt <= 0.0) { Toast.makeText(ctx, "Enter valid amount", Toast.LENGTH_SHORT).show(); return@Button }
+                viewModel.createRequest(to, amt, note) { success, err ->
+                    if (success) {
+                        Toast.makeText(ctx, "Request sent", Toast.LENGTH_SHORT).show()
+                        amount = ""
+                        note = ""
+                        toUser = null
+                    } else {
+                        Toast.makeText(ctx, "Error: ${err ?: "unknown"}", Toast.LENGTH_LONG).show()
+                    }
                 }
-
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    text = "Description",
-                    color = Color.Gray,
-                    fontSize = 16.sp
-                )
-                Spacer(Modifier.height(10.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(R.drawable.profile_gray),
-                        contentDescription = "description",
-                        modifier = Modifier.size(28.dp)
-                    )
-                    Spacer(Modifier.width(10.dp))
-                    BasicTextField(
-                        value = description,
-                        onValueChange = { description = it },
-                        singleLine = true,
-                        textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
-                Spacer(Modifier.height(24.dp))
-            }
-
-            Text(
-                text = "Monthly Due By",
-                color = Color.Gray,
-                fontSize = 16.sp
-            )
-            Spacer(Modifier.height(10.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                BasicTextField(
-                    value = dueDay,
-                    onValueChange = { if (it.length <= 2) dueDay = it.filter { ch -> ch.isDigit() } },
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 15.sp, color = Color.Black),
-                    modifier = Modifier.width(50.dp)
-                )
-                BasicTextField(
-                    value = dueMonth,
-                    onValueChange = { if (it.length <= 2) dueMonth = it.filter { ch -> ch.isDigit() } },
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 15.sp, color = Color.Black),
-                    modifier = Modifier.width(50.dp)
-                )
-                BasicTextField(
-                    value = dueYear,
-                    onValueChange = { if (it.length <= 4) dueYear = it.filter { ch -> ch.isDigit() } },
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 15.sp, color = Color.Black),
-                    modifier = Modifier.width(80.dp)
-                )
-            }
-
-            Spacer(Modifier.height(45.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "Enter your amount",
-                    color = Color.Gray,
-                    fontSize = 14.sp
-                )
-                Text(
-                    text = "Change currency?",
-                    color = Color.Red,
-                    fontSize = 14.sp
-                )
-            }
-            Spacer(Modifier.height(10.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = "USD",
-                    fontSize = 30.sp,
-                    modifier = Modifier.padding(end = 10.dp)
-                )
-                BasicTextField(
-                    value = amount,
-                    onValueChange = { amount = it },
-                    singleLine = true,
-                    textStyle = TextStyle(fontSize = 30.sp, color = Color.Black),
-                    modifier = Modifier.fillMaxWidth()
-                )
+            }, modifier = Modifier.fillMaxWidth().height(52.dp)) {
+                Text("Send Request")
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 20.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth(0.96f)
-                    .height(50.dp)
-                    .background(color = Color(0xFF1E88E5), shape = RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "Send Money",
-                    color = Color.White,
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
+        Box(modifier = Modifier.fillMaxWidth().padding(bottom = 20.dp), contentAlignment = Alignment.Center) {
+            Box(modifier = Modifier.fillMaxWidth(0.96f).height(50.dp).background(color = Color(0xFF1E88E5), shape = RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+                Text(text = "Request Money", color = Color.White)
             }
         }
     }

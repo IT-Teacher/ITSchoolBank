@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import uz.itteacher.itschoolbank.R
 import uz.itteacher.itschoolbank.navigation.Routes
 
 @Composable
@@ -21,23 +20,18 @@ fun BottomNavBar(
     onNavigate: (String) -> Unit
 ) {
     Column {
-
         Divider(color = Color(0xFFE0E0E0), thickness = 1.dp)
-
-        // 🔹 height olib tashlandi — Compose o‘zi balandlikni to‘g‘ri belgilaydi
         NavigationBar(
             containerColor = Color.White,
             tonalElevation = 0.dp,
-            modifier = Modifier
-                .navigationBarsPadding() // 🔥 pastki gesture panel uchun joy
+            modifier = Modifier.navigationBarsPadding()
         ) {
             val items = listOf(
-                Triple(Routes.HOME, R.drawable.home, "Home"),
-                Triple(Routes.TRANSACTIONS, R.drawable.cards, "Transactions"),
-                Triple(Routes.REQUEST, R.drawable.statistics, "Request"),
-                Triple(Routes.PROFILE, R.drawable.settings, "Profile")
+                Triple(Routes.HOME, uz.itteacher.itschoolbank.R.drawable.home, "Home"),
+                Triple(Routes.TRANSACTIONS, uz.itteacher.itschoolbank.R.drawable.cards, "Transactions"),
+                Triple(Routes.REQUEST, uz.itteacher.itschoolbank.R.drawable.statistics, "Request"),
+                Triple(Routes.PROFILE, uz.itteacher.itschoolbank.R.drawable.settings, "Profile")
             )
-
             items.forEach { (route, iconRes, label) ->
                 val selected = route == current
                 NavigationBarItem(
@@ -50,12 +44,7 @@ fun BottomNavBar(
                             tint = if (selected) Color(0xFF1E88E5) else Color.Gray
                         )
                     },
-                    label = {
-                        Text(
-                            text = label,
-                            color = if (selected) Color(0xFF1E88E5) else Color.Gray
-                        )
-                    },
+                    label = { Text(text = label, color = if (selected) Color(0xFF1E88E5) else Color.Gray) },
                     alwaysShowLabel = true
                 )
             }

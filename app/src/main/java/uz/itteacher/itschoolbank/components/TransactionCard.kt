@@ -1,7 +1,5 @@
 package uz.itteacher.itschoolbank.components
 
-
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text

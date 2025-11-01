@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.compose.ui.graphics.Color
+import uz.itteacher.itschoolbank.model.ChartCategory
 import uz.itteacher.itschoolbank.model.Transaction
 import uz.itteacher.itschoolbank.repository.TransactionRepository
 

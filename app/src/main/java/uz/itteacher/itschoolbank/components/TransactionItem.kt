@@ -1,9 +1,7 @@
 package uz.itteacher.itschoolbank.components
 
-
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Text
@@ -40,7 +38,11 @@ fun TransactionItem(tx: Transaction, modifier: Modifier = Modifier) {
                 Text(text = tx.category, fontSize = 12.sp, color = Color.Gray)
             }
 
-            val amountText = if (tx.amount >= 0) "+$${String.format("%.2f", tx.amount)}" else "-$${String.format("%.2f", -tx.amount)}"
+            val amountText = if (tx.amount >= 0)
+                "+$${String.format("%.2f", tx.amount)}"
+            else
+                "-$${String.format("%.2f", -tx.amount)}"
+
             val amountColor = if (tx.amount >= 0) Color(0xFF2E7D32) else Color(0xFFD32F2F)
             Text(text = amountText, fontWeight = FontWeight.Bold, color = amountColor)
         }

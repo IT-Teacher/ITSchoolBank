@@ -1,6 +1,5 @@
 package uz.itteacher.itschoolbank.navigation
 
-
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.*
@@ -9,8 +8,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import uz.itteacher.itschoolbank.screen.*
-import androidx.navigation.compose.rememberNavController
 import uz.itteacher.itschoolbank.components.BottomNavBar
+import uz.itteacher.itschoolbank.viewmodel.MainTransactionViewModel
+import androidx.navigation.compose.rememberNavController
+import androidx.lifecycle.viewmodel.compose.viewModel
 
 object Routes {
     const val HOME = "home"
@@ -18,13 +19,14 @@ object Routes {
     const val SEARCH = "search"
     const val REQUEST = "request"
     const val PROFILE = "profile"
-
     const val SEND_MONEY = "send_money"
 }
 
 @Composable
 fun AppNavHost(navController: NavHostController = rememberNavController()) {
+    val vm: MainTransactionViewModel = viewModel()
     var currentRoute by remember { mutableStateOf(Routes.HOME) }
+
     Scaffold(
         bottomBar = {
             BottomNavBar(current = currentRoute, onNavigate = { route ->
@@ -39,33 +41,15 @@ fun AppNavHost(navController: NavHostController = rememberNavController()) {
             })
         }
     ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Routes.HOME,
-            modifier = Modifier.padding(innerPadding)
-        ) {
+        NavHost(navController = navController, startDestination = Routes.HOME, modifier = Modifier.padding(innerPadding)) {
             composable(Routes.HOME) {
-                HomeScreen(
-                    onSeeAll = { navController.navigate(Routes.SEARCH) },
-                    onShowStats = { /* handled inside HomeScreen via dialog state */ },
-                    onSendMoney = { navController.navigate(Routes.SEND_MONEY) }
-                )
+                HomeScreen(viewModel = vm, onSeeAll = { navController.navigate(Routes.SEARCH) }, onSendMoney = { navController.navigate(Routes.SEND_MONEY) })
             }
-            composable(Routes.TRANSACTIONS) {
-                TransactionHistoryScreen(onSeeAll = { navController.navigate(Routes.SEARCH) })
-            }
-            composable(Routes.SEARCH) {
-                SearchScreen()
-            }
-            composable(Routes.REQUEST) {
-                RequestMoneyScreen()
-            }
-            composable(Routes.PROFILE) {
-                ProfileScreen()
-            }
-            composable(Routes.SEND_MONEY) {
-                SendMoneyScreen()
-            }
+            composable(Routes.TRANSACTIONS) { TransactionHistoryScreen(viewModel = vm) }
+            composable(Routes.SEARCH) { SearchScreen(viewModel = vm) }
+            composable(Routes.REQUEST) { RequestMoneyScreen(viewModel = vm) }
+            composable(Routes.PROFILE) { ProfileScreen(viewModel = vm) }
+            composable(Routes.SEND_MONEY) { SendMoneyScreen(viewModel = vm) }
         }
     }
 }
