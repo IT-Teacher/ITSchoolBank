@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import uz.itteacher.itschoolbank.navigation.AppNavHost
+import uz.itteacher.itschoolbank.ui.theme.ITSchoolBankTheme
 
 
 class MainActivity : ComponentActivity() {
@@ -19,6 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            ITSchoolBankTheme {
 
                 Surface {
                     val navController = rememberNavController()
@@ -26,7 +28,7 @@ class MainActivity : ComponentActivity() {
                         AppNavHost(navController = navController)
                     }
                 }
-
+            }
         }
     }
 }
