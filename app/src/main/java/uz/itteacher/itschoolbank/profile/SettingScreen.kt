@@ -158,7 +158,7 @@ fun SettingsItem(title: String, subtitle: String? = null, onClick: () -> Unit = 
                 painter = painterResource(R.drawable.next),
                 contentDescription = null,
                 tint = Color.Gray,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(15.dp)
             )
         }
     }

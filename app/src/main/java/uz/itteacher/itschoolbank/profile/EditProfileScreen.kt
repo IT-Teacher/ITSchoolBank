@@ -38,8 +38,6 @@ fun EditProfileScreen(navController: NavController) {
 
     val context = LocalContext.current
     var profileBitmap by remember { mutableStateOf<Bitmap?>(null) }
-
-    // Load image when screen opens
     LaunchedEffect(Unit) {
         profileBitmap = loadProfileImage(context)
     }
@@ -224,6 +222,7 @@ fun EditProfileScreen(navController: NavController) {
                         message = if (task.isSuccessful) "Changes saved" else "Failed to save changes"
                     }
                 }
+                navController.popBackStack()
             },
             modifier = Modifier
                 .fillMaxWidth()

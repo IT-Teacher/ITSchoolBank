@@ -122,7 +122,9 @@ fun ProfileScreen(navController: NavController) {
         ProfileMenuItem(R.drawable.notification, "Notifications", showBadge = true, badgeCount = 2)
         ProfileMenuItem(R.drawable.social, "Message Center")
         ProfileMenuItem(R.drawable.location, "Address")
-        ProfileMenuItem(R.drawable.setting, "Settings")
+        ProfileMenuItem(R.drawable.setting, "Settings"){
+            navController.navigate("setting")
+        }
     }
 }
 
