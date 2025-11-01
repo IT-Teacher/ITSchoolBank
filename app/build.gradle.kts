@@ -61,12 +61,6 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     // Firebase BOM
-    implementation(platform("com.google.firebase:firebase-bom:34.5.0"))
+    implementation(platform(libs.firebase.bom))
 
-    // Auth & Database
-    implementation("com.google.firebase:firebase-auth-ktx")
-    implementation("com.google.firebase:firebase-database-ktx")
-
-    // Optional but recommended
-    implementation("com.google.firebase:firebase-analytics-ktx")
 }

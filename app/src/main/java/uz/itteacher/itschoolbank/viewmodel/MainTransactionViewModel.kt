@@ -11,7 +11,6 @@ import uz.itteacher.itschoolbank.repository.FirebaseRepository
 import uz.itteacher.itschoolbank.service.FirebaseService
 
 import uz.itteacher.itschoolbank.R
-import uz.itteacher.itschoolbank.model.ChartCategory
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -19,7 +18,9 @@ class MainTransactionViewModel : ViewModel() {
 
     private val repo = FirebaseRepository()
     private val notificationService = FirebaseService()
-    private val auth = FirebaseAuth.getInstance()
+
+    // ❗ Temporary user UID since FirebaseAuth removed
+    private val tempUserUid = "temp_user_001"
 
     private val _currentUser = MutableStateFlow<User?>(null)
     val currentUser: StateFlow<User?> = _currentUser
@@ -51,16 +52,15 @@ class MainTransactionViewModel : ViewModel() {
     }
 
     private fun startObserving() {
-        val uid = auth.currentUser?.uid
-        if (uid != null) {
-            observeCurrentUser(uid as String)
-            observeTransactions(uid)
-            observeRequests(uid)
-        }
+        val uid = tempUserUid
+        observeCurrentUser(uid)
+        observeTransactions(uid)
+        observeRequests(uid)
+
         viewModelScope.launch {
             try {
                 _allUsers.value = repo.getAllUsersOnce()
-            } catch (_: Exception) { /* ignore */ }
+            } catch (_: Exception) {}
         }
     }
 
@@ -69,8 +69,9 @@ class MainTransactionViewModel : ViewModel() {
         usersRef.child(uid).addValueEventListener(object : com.google.firebase.database.ValueEventListener {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                 val u = snapshot.getValue(User::class.java)
-                _currentUser.value = u
+                _currentUser.value = u ?: User(uid, "Temporary User", balance = 1000.0)
             }
+
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
         })
     }
@@ -84,6 +85,7 @@ class MainTransactionViewModel : ViewModel() {
                     _dbTransactions.value = list.sortedByDescending { it.date }
                     _transactionsUi.value = _dbTransactions.value.map { mapDbToUi(it) }
                 }
+
                 override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
             })
     }
@@ -93,9 +95,9 @@ class MainTransactionViewModel : ViewModel() {
         requestsRef.addValueEventListener(object : com.google.firebase.database.ValueEventListener {
             override fun onDataChange(snapshot: com.google.firebase.database.DataSnapshot) {
                 val list = snapshot.children.mapNotNull { it.getValue(Request::class.java) }
-                val uidLocal = auth.currentUser?.uid
-                _requests.value = list.filter { it.toUid == uidLocal || it.fromUid == uidLocal }
+                _requests.value = list.filter { it.toUid == uid || it.fromUid == uid }
             }
+
             override fun onCancelled(error: com.google.firebase.database.DatabaseError) {}
         })
     }
@@ -112,42 +114,33 @@ class MainTransactionViewModel : ViewModel() {
         }
     }
 
-    /**
-     * Send money:
-     * 1) atomically decrement sender (suspend)
-     * 2) atomically increment receiver (suspend)
-     * 3) write two DBTransaction records
-     * 4) create notification record
-     */
     fun sendMoney(toUid: String, amount: Double, description: String = "", category: String = "transfer", iconKey: String = "transfer", onResult: (Boolean, String?) -> Unit = { _, _ -> }) {
-        val fromUid = auth.currentUser?.uid
-        if (fromUid == null) { onResult(false, "Not signed-in"); return }
+        val fromUid = tempUserUid
+
         viewModelScope.launch {
             try {
-                // 1) decrement sender
-                val okSender = repo.runBalanceTransactionSuspend(fromUid as String, -amount)
+                val okSender = repo.runBalanceTransactionSuspend(fromUid, -amount)
                 if (!okSender) { onResult(false, "Insufficient funds"); return@launch }
 
-                // 2) increment receiver
                 val okReceiver = repo.runBalanceTransactionSuspend(toUid, +amount)
                 if (!okReceiver) {
-                    // rollback sender
-                    repo.runBalanceTransactionSuspend(fromUid as String, +amount)
+                    repo.runBalanceTransactionSuspend(fromUid, +amount)
                     onResult(false, "Receiver update failed")
                     return@launch
                 }
 
-                // 3) write tx records
                 val now = System.currentTimeMillis()
                 val txId1 = com.google.firebase.database.FirebaseDatabase.getInstance().reference.child("transactions").push().key ?: ""
                 val txId2 = com.google.firebase.database.FirebaseDatabase.getInstance().reference.child("transactions").push().key ?: ""
-                val txSender = DBTransaction(id = txId1, ownerUid = fromUid as String, name = "Sent to $toUid", category = category, amount = -amount, iconKey = iconKey, date = now)
-                val txReceiver = DBTransaction(id = txId2, ownerUid = toUid, name = "Received from $fromUid", category = category, amount = amount, iconKey = iconKey, date = now)
-                com.google.firebase.database.FirebaseDatabase.getInstance().reference.child("transactions").child(txSender.id).setValue(txSender)
-                com.google.firebase.database.FirebaseDatabase.getInstance().reference.child("transactions").child(txReceiver.id).setValue(txReceiver)
 
-                // 4) notify receiver (DB record)
-                val senderName = _currentUser.value?.name ?: "Someone"
+                val txSender = DBTransaction(id = txId1, ownerUid = fromUid, name = "Sent to $toUid", category = category, amount = -amount, iconKey = iconKey, date = now)
+                val txReceiver = DBTransaction(id = txId2, ownerUid = toUid, name = "Received from $fromUid", category = category, amount = amount, iconKey = iconKey, date = now)
+
+                val ref = com.google.firebase.database.FirebaseDatabase.getInstance().reference.child("transactions")
+                ref.child(txSender.id).setValue(txSender)
+                ref.child(txReceiver.id).setValue(txReceiver)
+
+                val senderName = _currentUser.value?.name ?: "Temp User"
                 notificationService.sendNotification(toUid, "You received money", "$senderName sent you $${"%.2f".format(amount)}")
 
                 onResult(true, null)
@@ -157,15 +150,14 @@ class MainTransactionViewModel : ViewModel() {
         }
     }
 
-    // Create Payment Request
     fun createRequest(toUid: String, amount: Double, message: String = "", onResult: (Boolean, String?) -> Unit = { _, _ -> }) {
-        val fromUid = auth.currentUser?.uid ?: run { onResult(false, "Not signed-in"); return }
+        val fromUid = tempUserUid
         viewModelScope.launch {
             try {
                 val key = com.google.firebase.database.FirebaseDatabase.getInstance().reference.child("requests").push().key ?: ""
                 val req = Request(id = key, fromUid = fromUid, toUid = toUid, amount = amount, message = message)
                 com.google.firebase.database.FirebaseDatabase.getInstance().reference.child("requests").child(key).setValue(req)
-                val me = _currentUser.value?.name ?: "Someone"
+                val me = _currentUser.value?.name ?: "Temp User"
                 notificationService.sendNotification(toUid, "Payment Request", "$me requested $${"%.2f".format(amount)}")
                 onResult(true, null)
             } catch (e: Exception) {
@@ -209,8 +201,7 @@ class MainTransactionViewModel : ViewModel() {
             "transfer" -> R.drawable.transfer
             "shopping" -> R.drawable.shopping
             "request" -> R.drawable.request
-            else -> R.drawable.ic_transaction
+            else -> R.drawable.transaction
         }
     }
-
 }

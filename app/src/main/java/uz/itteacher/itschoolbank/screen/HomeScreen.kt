@@ -39,35 +39,53 @@ fun HomeScreen(
             .padding(16.dp)
     ) {
         item {
-            Text(text = "Category Chart", style = MaterialTheme.typography.titleMedium, modifier = Modifier.padding(bottom = 8.dp))
-            Box(modifier = Modifier
-                .height(220.dp)
-                .fillMaxWidth(), contentAlignment = Alignment.Center) {
+            Text(
+                text = "Category Chart",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+
+            Box(
+                modifier = Modifier
+                    .height(220.dp)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
                 Canvas(modifier = Modifier.size(200.dp)) {
                     val totalAngle = 360f
                     var startAngle = -90f
-                    val total = categories.sumOf { it.percent.toDouble() }.toFloat().takeIf { it > 0f } ?: 100f
+
+                    val total = categories.sumOf { it.percent.toDouble() }
+                        .toFloat()
+                        .takeIf { it > 0f } ?: 100f
+
                     for (cat in categories) {
-                        val sweep = (cat.percent / total) * totalAngle
+                        val sweep = (cat.percent.toDouble() / total) * totalAngle
                         drawArc(
                             color = cat.color,
                             startAngle = startAngle,
-                            sweepAngle = sweep,
+                            sweepAngle = sweep.toFloat(),
                             useCenter = false,
                             style = Stroke(width = 28f)
                         )
-                        startAngle += sweep
+                        startAngle += sweep.toFloat()
                     }
                 }
 
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("${categories.sumOf { it.percent }.toInt()}%", style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "${categories.sumOf { it.percent.toDouble() }.toInt()}%",
+                        style = MaterialTheme.typography.titleLarge
+                    )
                     Text("Transaction", color = Color.Gray)
                 }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Text("Transaction History", style = MaterialTheme.typography.titleMedium)
                 TextButton(onClick = { onSeeAll() }) { Text("See All") }
             }
@@ -84,7 +102,10 @@ fun HomeScreen(
 
         item {
             Spacer(modifier = Modifier.height(20.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
                 Button(onClick = { showDialog = true }) { Text("Statistics") }
                 Button(onClick = { onSendMoney() }) { Text("Send Money") }
             }
@@ -92,7 +113,12 @@ fun HomeScreen(
         }
 
         item {
-            TransactionCard(title = "Monthly Spend", subtitle = "Based on last month", amount = "$420", modifier = Modifier.padding(vertical = 8.dp))
+            TransactionCard(
+                title = "Monthly Spend",
+                subtitle = "Based on last month",
+                amount = "$420",
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
         }
     }
 }

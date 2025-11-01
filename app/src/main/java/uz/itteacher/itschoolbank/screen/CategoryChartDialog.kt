@@ -13,10 +13,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.graphics.Color
-import uz.itteacher.itschoolbank.model.ChartCategory
 
 @Composable
-fun CategoryChartDialog(categories: List<ChartCategory>, onDismiss: () -> Unit) {
+fun CategoryChartDialog(categories: List<uz.itteacher.itschoolbank.viewmodel.ChartCategory>, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = { onDismiss() },
         confirmButton = {
