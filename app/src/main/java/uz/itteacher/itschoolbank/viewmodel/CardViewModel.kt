@@ -2,45 +2,24 @@ package uz.itteacher.itschoolbank.viewmodel
 
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.google.firebase.firestore.FirebaseFirestore
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 import uz.itteacher.itschoolbank.modul.BankCard
-import uz.itteacher.itschoolbank.repository.CardRepository
-
 class CardViewModel : ViewModel() {
-    private val repository = CardRepository()
-    val cards = mutableStateListOf(
-        BankCard("1234567890123456", "Tanya Myroniuk", "24/2000", "6986", "Visa", 1000f),
-    )
+    private val db = FirebaseFirestore.getInstance()
+    private val _cards = MutableStateFlow<List<BankCard>>(emptyList())
+    val cards: StateFlow<List<BankCard>> = _cards.asStateFlow()
 
-    init {
-        loadCards()
-    }
-
-    fun loadCards() {
-        cards.clear()
-        cards.addAll(repository.getCards())
-    }
-
-    fun addCard(card: BankCard) {
-        repository.addCard(card)
-        loadCards()
-    }
-
-    fun updateCard(updatedCard: BankCard) {
-        val index = cards.indexOfFirst { it.cardNumber == updatedCard.cardNumber }
-        if (index != -1) {
-            cards[index] = updatedCard
-            repository.addCard(updatedCard)
-        }
-    }
-
-    fun setMainCard(card: BankCard) {
-        val index = cards.indexOf(card)
-        if (index != -1 && index != cards.lastIndex) {
-            cards.removeAt(index)
-            cards.add(card)
-            println("ViewModel moved card to main: ${card.cardNumber}") // Debug print
-            repository.updateCards(cards.toList()) // Update repository
-            loadCards() // Reload to sync with repository
-        }
+    fun loadCards(userId: String) {
+        db.collection("cards")
+            .whereEqualTo("userId", userId)
+            .addSnapshotListener { snap, _ ->
+                val list = snap?.toObjects(BankCard::class.java) ?: emptyList()
+                _cards.value = list
+            }
     }
 }

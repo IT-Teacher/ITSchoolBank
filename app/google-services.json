@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "145211998285",
+    "firebase_url": "https://itschoolbank-286c8-default-rtdb.firebaseio.com",
+    "project_id": "itschoolbank-286c8",
+    "storage_bucket": "itschoolbank-286c8.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:145211998285:android:c2d39c1a86c6b88f9d5c04",
+        "android_client_info": {
+          "package_name": "uz.itteacher.itschoolbank"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDKyDMsApiYCtw60TBkjlEE_yIyikXa0c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,6 +1,6 @@
 package uz.itteacher.itschoolbank.modul
 
-data class BankCard(
+class BankCard(
     val cardNumber: String,
     val cardholderName: String,
     val expiryDate: String,
@@ -8,8 +8,11 @@ data class BankCard(
     val cardType: String = "Mastercard",
     val monthlyLimit: Float = 10000f,
     val spentAmount: Float = 0f,
-    val transactions: List<Transaction> = emptyList()
-)
+    val transactions: List<Transaction> = emptyList(),
+    val userId: String
+){
+    constructor() : this("","", "", "", "", 0f, 0f, emptyList(), "")
+}
 
 data class Transaction(
     val merchant: String,

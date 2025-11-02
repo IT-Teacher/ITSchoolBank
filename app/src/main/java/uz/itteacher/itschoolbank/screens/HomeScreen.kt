@@ -5,7 +5,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -20,21 +19,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.firebase.Firebase
+import com.google.firebase.database.*
 import uz.itteacher.itschoolbank.R
+import uz.itteacher.itschoolbank.User
 import uz.itteacher.itschoolbank.modul.BankCard
 import uz.itteacher.itschoolbank.viewmodel.CardViewModel
 
 @Composable
-fun CardDashboard(viewModel: CardViewModel) {
+fun HomeScreen(viewModel: CardViewModel, user: User) {
     var selectedIndex by remember { mutableStateOf(0) }
 
-    LaunchedEffect(Unit) {
-        viewModel.loadCards()
+    val database = Firebase.database.getReference("cards")
+    var cardList by remember { mutableStateOf(listOf<BankCard>()) }
+    var isLoading by remember { mutableStateOf(true) }
+
+    LaunchedEffect(user.userId) {
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val list = mutableListOf<BankCard>()
+                for (child in snapshot.children) {
+                    val card = child.getValue(BankCard::class.java)
+                    if (card != null && card.userId == user.userId.toString()) {
+                        list.add(card)
+                    }
+                }
+                cardList = list
+                isLoading = false
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                isLoading = false
+            }
+        })
     }
 
     Scaffold(
@@ -55,7 +78,7 @@ fun CardDashboard(viewModel: CardViewModel) {
             item {
                 var searchText by remember { mutableStateOf("") }
                 SearchRow(
-                    firstName = "Tanya Myroniuk",
+                    firstName = user.userFullName,
                     imageResId = R.drawable.pfp,
                     searchQuery = searchText,
                     onSearchQueryChange = { searchText = it },
@@ -63,12 +86,34 @@ fun CardDashboard(viewModel: CardViewModel) {
                 )
             }
 
-            // Cards Row
+            // Cards Section (Real-time from Realtime DB)
             item {
-                CardBox(cards = viewModel.cards)
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else if (cardList.isEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(220.dp)
+                            .padding(16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("No cards yet", color = Color.Gray, fontSize = 16.sp)
+                    }
+                } else {
+                    CardBox(cards = cardList)
+                }
             }
 
-            // Four Action Buttons
+            // Action Buttons
             item {
                 FourImageButtonsRow { index ->
                     when (index) {
@@ -81,13 +126,12 @@ fun CardDashboard(viewModel: CardViewModel) {
             }
 
             // Transactions
-            item {
-                TransactionScreen()
-            }
+            item { TransactionScreen() }
         }
     }
 }
 
+// === All other composables unchanged (SearchRow, CardBox, etc.) ===
 @Composable
 fun SearchRow(
     firstName: String,
@@ -160,18 +204,13 @@ fun CardBox(cards: List<BankCard>) {
 
 @Composable
 fun CardItem(card: BankCard) {
-    Row(modifier = Modifier.padding(start = 15.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween) {
-        Box(
-            modifier = Modifier
-                .width(340.dp)
-                .height(200.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(Color(0xFF1E1E2F))
-
-
-        ) {
+    Box(
+        modifier = Modifier
+            .width(340.dp)
+            .height(200.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFF1E1E2F))
+    ) {
         Image(
             painter = painterResource(R.drawable.worldmap),
             contentDescription = null,
@@ -179,64 +218,67 @@ fun CardItem(card: BankCard) {
             contentScale = ContentScale.Crop
         )
 
-            Column(modifier = Modifier.padding(16.dp)) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Image(painterResource(R.drawable.sim_card), "Chip", Modifier.size(36.dp))
-                    Row(horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically) {
-                        listOf(R.drawable.union, R.drawable.union3, R.drawable.union2, R.drawable.union1).forEach {
-                            Image(painterResource(it), null, Modifier.size( width = if (it == R.drawable.union)  3.dp else if (it == R.drawable.union3) 4.dp else if (it == R.drawable.union2) 5.dp else 6.dp, height = if (it == R.drawable.union)  9.dp else if (it == R.drawable.union3) 13.dp else if (it == R.drawable.union2) 18.dp else 21.dp))
-                            Spacer(Modifier.width(1.dp))
-                        }
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Image(painterResource(R.drawable.sim_card), "Chip", Modifier.size(36.dp))
+                Row {
+                    listOf(R.drawable.union, R.drawable.union3, R.drawable.union2, R.drawable.union1).forEach {
+                        Image(painterResource(it), null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(2.dp))
                     }
                 }
+            }
 
-                Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
+            Text(
+                text = card.cardNumber.replaceRange(4, 12, " **** **** "),
+                color = Color.White,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text("Expiry Date", color = Color.White.copy(0.6f), fontSize = 11.sp)
+                    Text(card.expiryDate, color = Color.White, fontSize = 13.sp)
+                }
+                Column {
+                    Text("CVV", color = Color.White.copy(0.6f), fontSize = 11.sp)
+                    Text(card.cvv, color = Color.White, fontSize = 13.sp)
+                }
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 Text(
-                    text = card.cardNumber.replaceRange(4, 12, " **** **** "),
+                    text = card.cardholderName,
                     color = Color.White,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 8.dp)
                 )
-
-                Spacer(Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Column {
-                        Text("Expiry Date", color = Color.White.copy(0.6f), fontSize = 11.sp)
-                        Text(card.expiryDate, color = Color.White, fontSize = 13.sp)
-                    }
-                    Column {
-                        Text("CVV", color = Color.White.copy(0.6f), fontSize = 11.sp)
-                        Text(card.cvv, color = Color.White, fontSize = 13.sp)
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(card.cardholderName, color = Color.White, fontSize = 14.sp, modifier = Modifier.padding(top = 8.dp))
-                    Image(
-                        painter = painterResource(
-                            when (card.cardType) {
-                                "Mastercard" -> R.drawable.mastercard
-                                "Visa" -> R.drawable.ic_visa
-                                "American Express" -> R.drawable.ic_amex
-                                "UzCard" -> R.drawable.ic_uzcard
-                                else -> R.drawable.mastercard
-                            }
-                        ),
-                        contentDescription = card.cardType,
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
+                Image(
+                    painter = painterResource(
+                        when (card.cardType) {
+                            "Mastercard" -> R.drawable.mastercard
+                            "Visa" -> R.drawable.ic_visa
+                            "American Express" -> R.drawable.ic_amex
+                            "UzCard" -> R.drawable.ic_uzcard
+                            else -> R.drawable.mastercard
+                        }
+                    ),
+                    contentDescription = card.cardType,
+                    modifier = Modifier.size(36.dp)
+                )
             }
         }
     }
@@ -250,10 +292,10 @@ fun FourImageButtonsRow(onButtonClick: (Int) -> Unit) {
             .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        ImageCircleButton(R.drawable.up, { onButtonClick(0) })
-        ImageCircleButton(R.drawable.down, { onButtonClick(1) })
-        ImageCircleButton(R.drawable.loan, { onButtonClick(2) })
-        ImageCircleButton(R.drawable.topup, { onButtonClick(3) })
+        ImageCircleButton(R.drawable.up) { onButtonClick(0) }
+        ImageCircleButton(R.drawable.down) { onButtonClick(1) }
+        ImageCircleButton(R.drawable.loan) { onButtonClick(2) }
+        ImageCircleButton(R.drawable.topup) { onButtonClick(3) }
     }
 }
 
@@ -303,7 +345,7 @@ fun TransactionScreen() {
                 modifier = Modifier.align(Alignment.CenterStart)
             )
             Text(
-                "Sell All",
+                "See All",
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 color = Color(0xFF1976D2),
@@ -317,7 +359,7 @@ fun TransactionScreen() {
         Spacer(Modifier.height(16.dp))
         TransactionItem(transferIcon, "Money Transfer", "Transaction", "$300", Color(0xFF1976D2))
         Spacer(Modifier.height(16.dp))
-        TransactionItem(trolleyIcon, "Grocery", "Food",  "- $88", Color.Gray)
+        TransactionItem(trolleyIcon, "Grocery", "Food", "- $88", Color.Gray)
     }
 }
 
@@ -331,10 +373,10 @@ fun TransactionItem(iconRes: Int, title: String, subtitle: String, amount: Strin
             painter = painterResource(iconRes),
             contentDescription = null,
             modifier = Modifier
+                .size(42.dp)
                 .clip(CircleShape)
                 .background(Color(0xFFF5F5F5))
                 .padding(10.dp)
-                .size(42.dp)
         )
         Spacer(Modifier.width(16.dp))
         Column(modifier = Modifier.weight(1f)) {
@@ -379,9 +421,12 @@ fun BottomNavItem(iconRes: Int, label: String, isSelected: Boolean, onClick: () 
     }
 }
 
-// MARK: - Preview
+// === Fixed Preview ===
 @Preview(showBackground = true)
 @Composable
-fun CardDashboardPreview() {
-    CardDashboard(CardViewModel())
+fun HomeScreenPreview() {
+    HomeScreen(
+        viewModel = CardViewModel(),
+        user = User(userId = 1, userFullName = "Tanya Myroniuk",  0)
+    )
 }
