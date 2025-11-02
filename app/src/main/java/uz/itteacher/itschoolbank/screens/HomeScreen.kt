@@ -1,6 +1,7 @@
 package uz.itteacher.itschoolbank.screens
 
 import android.annotation.SuppressLint
+import android.hardware.lights.Light
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -39,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -64,6 +67,8 @@ fun CardDashboard(viewModel: CardViewModel){
             )
 
         CardBox(cards)
+
+        FourImageButtonsRow {  }
 
     }
 }
@@ -151,10 +156,10 @@ fun CardBox(cards : List<BankCard>){
 
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp),
+        contentPadding = PaddingValues( start = 5.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .height(160.dp)
+            .height(230.dp)
     ) {
         items(cards) { card ->
             CardItem(card)
@@ -172,6 +177,15 @@ fun CardItem(card: BankCard) {
             .padding(8.dp)
             .background(Color(0xFF1E1E2F), RoundedCornerShape(16.dp))
     ) {
+
+        Image(
+            painter = painterResource(id = R.drawable.worldmap),
+            contentDescription = null,  // Add description for accessibility if needed
+            modifier = Modifier.fillMaxSize(),
+            contentScale = ContentScale.Crop  // Crop to fit without stretching
+        )
+
+
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -229,13 +243,11 @@ fun CardItem(card: BankCard) {
                     Text(text = card.cvv, color = Color.White, fontSize = 14.sp)
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom
             ) {
-                Text(text = card.cardholderName, color = Color.White, fontSize = 16.sp)
+                Text(text = card.cardholderName, color = Color.White, modifier = Modifier.padding(top = 8.dp))
                 Image(
                     painter = painterResource(id = when (card.cardType) {
                         "Mastercard" -> R.drawable.mastercard
@@ -251,4 +263,78 @@ fun CardItem(card: BankCard) {
         }
     }
 }
+
+@Composable
+fun FourImageButtonsRow(
+    onButtonClick: (Int) -> Unit
+) {
+    Spacer(modifier = Modifier.height(20.dp))
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ImageCircleButton(
+            imageRes = R.drawable.up,
+            onClick = { onButtonClick(0) }
+        )
+        ImageCircleButton(
+            imageRes = R.drawable.down,
+            onClick = { onButtonClick(1) }
+        )
+        ImageCircleButton(
+            imageRes = R.drawable.loan,
+            onClick = { onButtonClick(2) }
+        )
+        ImageCircleButton(
+            imageRes = R.drawable.topup,
+            onClick = { onButtonClick(3) }
+        )
+    }
+}
+
+@Composable
+fun ImageCircleButton(
+    imageRes: Int,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .size(64.dp)
+            .clip(CircleShape)
+            .clickable { onClick() }
+            .background(Color(0xFFF4F4F4))
+            .padding(4.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Image(
+            painter = painterResource(id = imageRes),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(56.dp)
+                .clip(CircleShape)
+        )
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
