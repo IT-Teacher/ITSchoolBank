@@ -82,6 +82,7 @@ fun SearchRow(
     onSearchClick: () -> Unit = {},
     @SuppressLint("ModifierParameter") modifier: Modifier = Modifier
 ) {
+    Spacer(modifier = Modifier.height(20.dp))
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -112,8 +113,7 @@ fun SearchRow(
                     text = firstName,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Black,
-                    textAlign = TextAlign.Center
+                    color = Color.Black
                 )
             }
         }
