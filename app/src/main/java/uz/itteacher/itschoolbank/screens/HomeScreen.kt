@@ -280,6 +280,7 @@ fun ImageCircleButton(imageRes: Int, onClick: () -> Unit) {
 val appleIcon = R.drawable.apple
 val spotifyIcon = R.drawable.spotify
 val transferIcon = R.drawable.transfer_down
+val trolleyIcon = R.drawable.trolley
 
 @Composable
 fun TransactionScreen() {
@@ -315,6 +316,8 @@ fun TransactionScreen() {
         TransactionItem(spotifyIcon, "Spotify", "Music", "- $12.99", Color.Gray)
         Spacer(Modifier.height(16.dp))
         TransactionItem(transferIcon, "Money Transfer", "Transaction", "$300", Color(0xFF1976D2))
+        Spacer(Modifier.height(16.dp))
+        TransactionItem(trolleyIcon, "Grocery", "Food",  "- $88", Color.Gray)
     }
 }
 
@@ -342,7 +345,6 @@ fun TransactionItem(iconRes: Int, title: String, subtitle: String, amount: Strin
     }
 }
 
-// MARK: - Bottom Navigation
 @Composable
 fun FixedBottomNavigationRow(selectedIndex: Int, onItemSelected: (Int) -> Unit) {
     Row(
